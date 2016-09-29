@@ -1,8 +1,10 @@
 package com.example.marmm.demoFragments;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,10 +19,15 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
 
     private Cursor remindersCursor;
 
+    private MainFragment mainFragment;
 
-    public ReminderAdapter(Cursor cursor){
+
+
+
+    public ReminderAdapter(Cursor cursor, MainFragment fragment){
 
         remindersCursor = cursor;
+        mainFragment = fragment;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -32,8 +39,6 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
             description = (TextView) itemView.findViewById(R.id.description);
 
         }
-
-
 
 }
 
@@ -64,11 +69,25 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ViewHo
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(v.getContext(), DetailActivity.class);
-                    intent.putExtra(MainActivity.REMINDER, reminder);
-                    v.getContext().startActivity(intent);
 
-                }
+
+                    DetailFragment fragment = new DetailFragment();
+
+                    Bundle arguments = new Bundle();
+                    arguments.putString(MainFragment.REMINDER, reminder);
+                    fragment.setArguments(arguments);
+                    mainFragment.getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.detailFragment, fragment)
+                            .commit();
+
+
+
+//                    Intent intent = new Intent(v.getContext(), DetailActivity.class);
+//                    intent.putExtra();
+//                    v.getContext().startActivity(intent);
+
+                     }
+
             });
         }
     }

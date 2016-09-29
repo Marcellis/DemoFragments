@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -41,28 +42,36 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        dbHelper = new DBhelper(this);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        cursor.close();
+        database.close();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+
+        View view = inflater.inflate(R.layout.activity_main, container, false);
+
+//        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+//        ((ActionBarActivity)getActivity()).setSupportActionBar(toolbar);
+
+
+        dbHelper = new DBhelper(getActivity());
         database = dbHelper.getWritableDatabase();
 
 
-        recyclerView = (RecyclerView) findViewById(R.id.idReclycerView);
-        editText = (EditText) findViewById(R.id.editText);
+        recyclerView = (RecyclerView) view.findViewById(R.id.idReclycerView);
+        editText = (EditText) view.findViewById(R.id.editText);
 
 
-
-
-        // recycler view
-
-
-        // LinearLayoutManager mLayoutManager
-        //              = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-
-//        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 2);
-
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
 
 
@@ -71,7 +80,7 @@ public class MainFragment extends Fragment {
 
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,21 +95,10 @@ public class MainFragment extends Fragment {
         });
 
 
+        return view;
+
     }
 
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.activity_main, container, false);
-    }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        cursor.close();
-        database.close();
-    }
 
 
     public void getAllReminders() {
@@ -109,17 +107,16 @@ public class MainFragment extends Fragment {
         cursor = database.query(DBhelper.TABLE_REMINDERS, new String[]{DBhelper.REMINDER_ID, DBhelper.REMINDER_NAME}, null, null, null, null, null);
 
 
-        adapter = new ReminderAdapter(cursor);
+        adapter = new ReminderAdapter(cursor, this);
         recyclerView.setAdapter(adapter);
 
 
 
     }
 
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getActivity().getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
